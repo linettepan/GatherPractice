@@ -1,0 +1,57 @@
+var secret = 'gFJfdKe8TSk8ap5niQ9Ii7kSPeFL2zq3YmjQwFgo'
+
+
+function getFirebaseUrl(jsonPath) {
+  return 'https://gatherdevelopmentserver.firebaseio.com/' + jsonPath + '.json?auth=' + secret
+}
+
+function syncMasterSheet(excelData) {
+  var options = {
+    method: 'put',
+    contentType: 'application/json',
+    payload: JSON.stringify(excelData)
+  };
+  var fireBaseUrl = getFirebaseUrl('masterSheet')
+  UrlFetchApp.fetch(fireBaseUrl, options);
+}
+
+function myFunction() {
+  //Get the currently active sheet
+  var sheet = SpreadsheetApp.getActiveSheet();
+  //Get the rows and cols
+  var [rows, columns] = [sheet.getLastRow(), sheet.getLastColumn()];
+  //Get the data 
+  var data = sheet.getRange(1, 1, rows, columns).getValues();
+
+
+  syncMasterSheet(data);
+}
+
+
+//this is a different one wasn't sure which worked
+
+
+
+function myFunction() {
+  function writeDataToFirebase() {
+  var ss = SpreadsheetApp.openById("1rV2_S2q5rcakOuHs2E1iLeKR2floRIozSytAt2iRXo8"); //change??
+  var sheet = ss.getSheets()[0];
+  var data = sheet.getDataRange().getValues();
+  var dataToImport = {};
+  for(var i = 1; i < data.length; i++) {
+    dataToImport = {
+      date = data[i][0];
+      time = data[i][1];
+      title:data[i][2],
+      host:data[i][4],
+      location:data[i][5],
+      about:data[i][6],
+      issueAreas:data[i][7],
+      fbevent:data[i][8]
+    };
+  }
+  var firebaseUrl = "https://gatherdevelopmentserver.firebaseio.com/";
+  var base = FirebaseApp.getDatabaseByUrl(firebaseUrl);
+  base.setData("", dataToImport);
+ }
+}
